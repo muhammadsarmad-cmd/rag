@@ -22,14 +22,15 @@ def chunk_text(text: str) -> list[str]:
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     return text_splitter.split_text(text)
 
-def embed_chunks(chunks:list[str])->list[float]:
+def embed_chunks(chunks:list[str])->list[list[float]]:
     client = OpenAI()
     embedding_model = os.getenv("EMBEDDING_MODEL")
     response = client.embeddings.create(input=chunks, model=embedding_model)
-    return response 
+    return [embedding.embedding for embedding in response.data]
 
 text = extract_text_from_pdf(r'C:\rag\file-sample_150kB.pdf')
 chunks = chunk_text(text)
 embeddings = embed_chunks(chunks)
 
-print(embeddings)
+print(f"Total embeddings: {len(embeddings)}")
+print(f"Vector dimensions: {len(embeddings[0])}")
