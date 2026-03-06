@@ -77,16 +77,9 @@ def query(query:str,top_k:int = 2)->str:
     return ai_response.choices[0].message.content
 
 
-
-
-    
-
-
-
-
-text = extract_text_from_pdf(r'C:\rag\CIVIL SERVANTS LEAVE RULES, 1986.pdf')
-chunks = chunk_text(text)
-embeddings = embed_chunks(chunks)
-store_in_qdrant(chunks, embeddings)
-ai = query("what policy of recreation leave")
-print(ai)
+# text = extract_text_from_pdf(r'C:\rag\CIVIL SERVANTS LEAVE RULES, 1986.pdf')
+# chunks = chunk_text(text)
+# embeddings = embed_chunks(chunks)
+# store_in_qdrant(chunks, embeddings)
+# ai = query("what policy of recreation leave")
+# print(ai)
