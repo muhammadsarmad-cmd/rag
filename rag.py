@@ -1,11 +1,14 @@
 
 import os
+import uuid
 from pypdf import PdfReader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from openai import OpenAI
 from dotenv import load_dotenv
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams ,PointStruct
+
+
 load_dotenv()
 
 
@@ -33,18 +36,18 @@ def embed_chunks(chunks:list[str])->list[list[float]]:
     return [embedding.embedding for embedding in response.data]
 
 #docker run -p 6333:6333 qdrant/qdrant
-def store_in_qdrant(chunks: list[str], embeddings: list[list[float]]) -> None:
+def store_in_qdrant(chunks: list[str], embeddings: list[list[float]], file_name:str) -> None:
     
     if not qdrant_client.collection_exists(collection_name="docs"):
         qdrant_client.create_collection(
             collection_name="docs",
             vectors_config=VectorParams(size=1536, distance=Distance.COSINE),
         )
-    for i,(chunk,embedding) in enumerate(zip(chunks,embeddings)):
+    for chunk,embedding in zip(chunks,embeddings):
         qdrant_client.upsert(
             collection_name="docs",
             points=[
-                PointStruct(id=i, vector=embedding, payload={"text":chunk})
+                PointStruct(id=str(uuid.uuid4()), vector=embedding, payload={"text":chunk, "source":file_name})
             ]
         )
 

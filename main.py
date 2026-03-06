@@ -16,7 +16,7 @@ def uploadFile(file:UploadFile = File(...)):
     text = extract_text_from_pdf(tmp_path)
     chunks = chunk_text(text)
     embeddings = embed_chunks(chunks)
-    store_in_qdrant(chunks,embeddings)
+    store_in_qdrant(chunks,embeddings,file.filename)
     return {"message": "file uploaded and store in vector store"}
 
 @app.post("/query/")
