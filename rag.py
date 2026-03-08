@@ -14,7 +14,7 @@ load_dotenv()
 
 client = OpenAI()
 embedding_model = os.getenv("EMBEDDING_MODEL") 
-qdrant_client = QdrantClient(url="http://localhost:6335")
+qdrant_client = QdrantClient(url="http://localhost:6333")
 
 def extract_text_from_pdf(file_path: str) -> str:
 
@@ -54,11 +54,8 @@ def store_in_qdrant(chunks: list[str], embeddings: list[list[float]], file_name:
     result = qdrant_client.get_collection(collection_name="docs")
     return result.points_count
 
-def query(query:str,top_k:int = 2)->str:
-    
+def retrieve_context(query:str,top_k:int = 2)->str:
     embedd_query = client.embeddings.create(input= query, model=embedding_model)
-    
-    
     response = qdrant_client.query_points(
         collection_name='docs',
         query = embedd_query.data[0].embedding,
@@ -68,6 +65,12 @@ def query(query:str,top_k:int = 2)->str:
     context = [point.payload.get("text") for point in response.points]
 
     context_str = "\n\n".join(context)
+
+    return context_str
+
+def query(query:str,top_k:int = 2)->str:
+    
+    context_str = retrieve_context(query,top_k)
 
     ai_response = client.chat.completions.create(
         model = "o4-mini-2025-04-16",
